@@ -11,17 +11,27 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text BestScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
+    private int bestScore;
     
     private bool m_GameOver = false;
 
+    public GameObject dontDestroyOnLoad;
+    public string playerName;
+    public PlayerData playerInfo;
     
     // Start is called before the first frame update
     void Start()
     {
+        dontDestroyOnLoad = GameObject.Find("DataToSave");
+        playerName = dontDestroyOnLoad.GetComponent<MenuUI>().getName();
+        bestScore = dontDestroyOnLoad.GetComponent<MenuUI>().getPoints();
+        BestScoreText.text = "Best Score: " + playerName + ": " + bestScore;
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -70,6 +80,21 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+
+        #region update_score
+        if (m_Points > bestScore)
+        {
+            bestScore = m_Points;
+            BestScoreText.text = "Best Score: " + dontDestroyOnLoad.GetComponent<MenuUI>().getName() + ": " + bestScore;
+            dontDestroyOnLoad.GetComponent<MenuUI>().setPoints(m_Points);
+            #endregion
+
+            #region save_player_data
+            playerInfo = new PlayerData(playerName, bestScore);
+            dontDestroyOnLoad.GetComponent<MenuUI>().SaveData(playerInfo);
+            #endregion
+        }
+
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
